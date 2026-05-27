@@ -1,0 +1,1616 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Implementação Presencial — Workshop Intergeracional</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,700;1,9..144,300;1,9..144,500&family=Plus+Jakarta+Sans:wght@300;400;500;600&family=Inconsolata:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:       #faf7f2;
+    --surface:  #ffffff;
+    --cream:    #f3ede3;
+    --border:   #e2d9cc;
+    --ink:      #1c1814;
+    --ink-mid:  #4a3f35;
+    --ink-soft: #8a7a6a;
+    --forest:   #2d5a3d;
+    --forest-lt:#e8f2ec;
+    --saffron:  #c4820a;
+    --saffron-lt:#fdf4e3;
+    --terracota:#b84830;
+    --terra-lt: #faeae7;
+    --indigo:   #3d4f8a;
+    --indigo-lt:#eaecf8;
+    --sand:     #c4a97d;
+    --sand-lt:  #faf4eb;
+  }
+
+  *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 300;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── CAPA ── */
+  .cover {
+    background: var(--forest);
+    color: white;
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cover-texture {
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(circle at 20% 80%, rgba(196,169,125,0.15) 0%, transparent 50%),
+                      radial-gradient(circle at 80% 20%, rgba(255,255,255,0.05) 0%, transparent 50%);
+  }
+
+  .cover-pattern {
+    position: absolute;
+    inset: 0;
+    opacity: 0.04;
+    background-image: repeating-linear-gradient(
+      45deg,
+      white 0px, white 1px,
+      transparent 1px, transparent 12px
+    );
+  }
+
+  .cover-left {
+    padding: 4rem 3.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+    z-index: 1;
+    border-right: 1px solid rgba(255,255,255,0.1);
+  }
+
+  .cover-tag {
+    font-family: 'Inconsolata', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.45);
+  }
+
+  .cover-main h1 {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    font-weight: 700;
+    line-height: 1.0;
+    margin-bottom: 1.5rem;
+  }
+
+  .cover-main h1 em {
+    font-style: italic;
+    font-weight: 300;
+    color: var(--sand);
+  }
+
+  .cover-main p {
+    font-size: 0.92rem;
+    color: rgba(255,255,255,0.6);
+    line-height: 1.7;
+    max-width: 360px;
+    border-left: 2px solid var(--sand);
+    padding-left: 1rem;
+  }
+
+  .cover-meta {
+    font-family: 'Inconsolata', monospace;
+    font-size: 0.58rem;
+    letter-spacing: 0.15em;
+    color: rgba(255,255,255,0.3);
+    text-transform: uppercase;
+    line-height: 2;
+  }
+
+  .cover-right {
+    padding: 4rem 3.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+    z-index: 1;
+  }
+
+  .cover-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+  }
+
+  .cs-item {
+    border-top: 2px solid rgba(255,255,255,0.15);
+    padding-top: 1rem;
+  }
+
+  .cs-val {
+    font-family: 'Fraunces', serif;
+    font-size: 2.2rem;
+    font-weight: 500;
+    color: var(--sand);
+    line-height: 1;
+    margin-bottom: 0.3rem;
+  }
+
+  .cs-label {
+    font-size: 0.72rem;
+    color: rgba(255,255,255,0.45);
+    line-height: 1.4;
+  }
+
+  .cover-contexts {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+  }
+
+  .ctx-item {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    padding: 0.8rem 1rem;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 4px;
+  }
+
+  .ctx-icon { font-size: 1.2rem; }
+
+  .ctx-text {
+    font-size: 0.8rem;
+    color: rgba(255,255,255,0.7);
+    line-height: 1.3;
+  }
+
+  .ctx-text strong { color: white; font-weight: 500; display: block; }
+
+  /* ── DIVIDER ── */
+  .divider {
+    background: var(--cream);
+    padding: 1.2rem 4rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+  }
+
+  .div-num {
+    font-family: 'Inconsolata', monospace;
+    font-size: 0.58rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--terracota);
+  }
+
+  .div-rule { flex: 0 0 30px; height: 1px; background: var(--border); }
+
+  .div-title {
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: var(--ink-mid);
+  }
+
+  /* ── PAGE ── */
+  .page { max-width: 1100px; margin: 0 auto; padding: 3.5rem 4rem; }
+
+  .eyebrow {
+    font-family: 'Inconsolata', monospace;
+    font-size: 0.58rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--terracota);
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+
+  .section-title {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(1.6rem, 2.5vw, 2.2rem);
+    font-weight: 700;
+    line-height: 1.15;
+    margin-bottom: 0.4rem;
+  }
+
+  .section-lead {
+    font-size: 0.88rem;
+    color: var(--ink-soft);
+    max-width: 620px;
+    line-height: 1.7;
+    margin-bottom: 2.5rem;
+    font-style: italic;
+  }
+
+  /* ── FICHA IDENTIDADE WORKSHOP ── */
+  .workshop-id {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 2.5rem;
+    align-items: start;
+    margin-bottom: 2.5rem;
+  }
+
+  .wid-main {
+    background: var(--forest);
+    color: white;
+    padding: 2.5rem;
+  }
+
+  .wid-title {
+    font-family: 'Fraunces', serif;
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 0.3rem;
+  }
+
+  .wid-subtitle {
+    font-size: 0.82rem;
+    color: rgba(255,255,255,0.55);
+    margin-bottom: 1.5rem;
+    font-style: italic;
+  }
+
+  .wid-specs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  .wid-spec {
+    border-top: 1px solid rgba(255,255,255,0.1);
+    padding-top: 0.8rem;
+  }
+
+  .wid-spec-label {
+    font-family: 'Inconsolata', monospace;
+    font-size: 0.5rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.4);
+    margin-bottom: 0.3rem;
+  }
+
+  .wid-spec-val {
+    font-size: 0.82rem;
+    color: rgba(255,255,255,0.9);
+    font-weight: 500;
+  }
+
+  .wid-side {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .info-box {
+    padding: 1.5rem;
+    border: 1px solid var(--border);
+    background: var(--surface);
+  }
+
+  .info-box h5 {
+    font-family: 'Inconsolata', monospace;
+    font-size: 0.52rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-bottom: 0.8rem;
+    padding-bottom: 0.6rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .info-box p, .info-box li {
+    font-size: 0.8rem;
+    color: var(--ink-mid);
+    line-height: 1.6;
+  }
+
+  .info-box ul { list-style: none; }
+
+  .info-box ul li {
+    padding: 0.3rem 0;
+    padding-left: 1rem;
+    position: relative;
+    border-bottom: 1px dashed var(--border);
+  }
+
+  .info-box ul li:last-child { border-bottom: none; }
+
+  .info-box ul li::before {
+    content: '·';
+    position: absolute;
+    left: 0;
+    color: var(--forest);
+    font-weight: 700;
+    font-size: 1rem;
+    line-height: 1.2;
+  }
+
+  /* ── AGENDA / TIMELINE ── */
+  .agenda {
+    position: relative;
+  }
+
+  .agenda::before {
+    content: '';
+    position: absolute;
+    left: 80px;
+    top: 0; bottom: 0;
+    width: 1px;
+    background: var(--border);
+  }
+
+  .agenda-item {
+    display: grid;
+    grid-template-columns: 80px 1fr;
+    gap: 0;
+    position: relative;
+    margin-bottom: 0;
+  }
+
+  .agenda-time {
+    padding: 2rem 1.5rem 2rem 0;
+    text-align: right;
+    position: relative;
+  }
+
+  .agenda-time-val {
+    font-family: 'Inconsolata', monospace;
+    font-size: 0.72rem;
+    font-weight: 500;
+    color: var(--ink);
+    display: block;
+    margin-bottom: 0.2rem;
+  }
+
+  .agenda-time-dur {
+    font-family: 'Inconsolata', monospace;
+    font-size: 0.55rem;
+    color: var(--ink-soft);
+    letter-spacing: 0.05em;
+  }
+
+  .agenda-dot {
+    position: absolute;
+    right: -6px;
+    top: 2.2rem;
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    border: 2px solid var(--bg);
+    z-index: 1;
+  }
+
+  .agenda-content {
+    padding: 1.8rem 0 1.8rem 2rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .agenda-item:last-child .agenda-content { border-bottom: none; }
+
+  .agenda-content-inner {
+    display: grid;
+    grid-template-columns: 1fr 280px;
+    gap: 2rem;
+    align-items: start;
+  }
+
+  .agenda-phase {
+    font-family: 'Inconsolata', monospace;
+    font-size: 0.52rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-bottom: 0.4rem;
+  }
+
+  .agenda-title {
+    font-family: 'Fraunces', serif;
+    font-size: 1.1rem;
+    font-weight: 500;
+    margin-bottom: 0.6rem;
+    line-height: 1.3;
+  }
+
+  .agenda-desc {
+    font-size: 0.82rem;
+    color: var(--ink-mid);
+    line-height: 1.65;
+    margin-bottom: 1rem;
+  }
+
+  .agenda-activities {
+    list-style: none;
+  }
+
+  .agenda-activities li {
+    font-size: 0.78rem;
+    color: var(--ink-mid);
+    padding: 0.35rem 0;
+    padding-left: 1.2rem;
+    position: relative;
+    border-bottom: 1px dashed var(--border);
+    line-height: 1.45;
+  }
+
+  .agenda-activities li::before {
+    content: '→';
+    position: absolute;
+    left: 0;
+    color: var(--forest);
+    font-size: 0.65rem;
+    top: 0.5rem;
+  }
+
+  .agenda-activities li:last-child { border-bottom: none; }
+
+  .agenda-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+  }
+
+  .sidebar-chip {
+    padding: 0.8rem 1rem;
+    font-size: 0.75rem;
+    color: var(--ink-mid);
+    line-height: 1.5;
+    border-radius: 3px;
+    border-left: 3px solid;
+  }
+
+  .sc-forest { background: var(--forest-lt); border-color: var(--forest); }
+  .sc-saffron { background: var(--saffron-lt); border-color: var(--saffron); }
+  .sc-terra   { background: var(--terra-lt); border-color: var(--terracota); }
+  .sc-indigo  { background: var(--indigo-lt); border-color: var(--indigo); }
+  .sc-sand    { background: var(--sand-lt); border-color: var(--sand); }
+
+  .sc-label {
+    font-family: 'Inconsolata', monospace;
+    font-size: 0.48rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 0.3rem;
+  }
+
+  .sc-forest .sc-label { color: var(--forest); }
+  .sc-saffron .sc-label { color: var(--saffron); }
+  .sc-terra .sc-label { color: var(--terracota); }
+  .sc-indigo .sc-label { color: var(--indigo); }
+  .sc-sand .sc-label { color: var(--sand); }
+
+  /* dot colors */
+  .dot-forest { background: var(--forest); }
+  .dot-saffron { background: var(--saffron); }
+  .dot-terra   { background: var(--terracota); }
+  .dot-indigo  { background: var(--indigo); }
+  .dot-sand    { background: var(--sand); }
+
+  /* ── MATERIAIS ── */
+  .materials-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+  }
+
+  .mat-card {
+    background: var(--surface);
+    padding: 1.8rem 1.5rem;
+  }
+
+  .mat-card h4 {
+    font-family: 'Fraunces', serif;
+    font-size: 0.95rem;
+    font-weight: 500;
+    margin-bottom: 0.3rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .mat-badge {
+    font-family: 'Inconsolata', monospace;
+    font-size: 0.48rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.2rem 0.45rem;
+    border-radius: 2px;
+  }
+
+  .mb-digital  { background: var(--forest-lt); color: var(--forest); }
+  .mb-fisico   { background: var(--saffron-lt); color: var(--saffron); }
+  .mb-humano   { background: var(--indigo-lt); color: var(--indigo); }
+
+  .mat-list {
+    list-style: none;
+    margin-top: 0.8rem;
+  }
+
+  .mat-list li {
+    font-size: 0.76rem;
+    color: var(--ink-mid);
+    padding: 0.3rem 0;
+    border-bottom: 1px dashed var(--border);
+    padding-left: 1rem;
+    position: relative;
+    line-height: 1.45;
+  }
+
+  .mat-list li::before {
+    content: '☐';
+    position: absolute;
+    left: 0;
+    color: var(--border);
+    font-size: 0.6rem;
+    top: 0.4rem;
+  }
+
+  .mat-list li:last-child { border-bottom: none; }
+
+  /* ── PAPEL DO MEDIADOR ── */
+  .mediator-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2.5rem;
+  }
+
+  .mediator-do, .mediator-dont {
+    border: 1px solid var(--border);
+    background: var(--surface);
+  }
+
+  .mediator-header {
+    padding: 1rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .mediator-header.do-header { background: var(--forest-lt); }
+  .mediator-header.dont-header { background: var(--terra-lt); }
+
+  .mediator-header h4 {
+    font-family: 'Inconsolata', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+
+  .do-header h4 { color: var(--forest); }
+  .dont-header h4 { color: var(--terracota); }
+
+  .mediator-body {
+    padding: 0;
+  }
+
+  .mediator-item {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.8rem;
+    color: var(--ink-mid);
+    line-height: 1.55;
+    padding-left: 2.5rem;
+    position: relative;
+  }
+
+  .mediator-item:last-child { border-bottom: none; }
+
+  .mediator-item::before {
+    position: absolute;
+    left: 1rem;
+    font-size: 0.7rem;
+    top: 1.1rem;
+  }
+
+  .do-item::before   { content: '✓'; color: var(--forest); }
+  .dont-item::before { content: '✗'; color: var(--terracota); }
+
+  /* ── CONTEXTOS ── */
+  .contexts-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+  }
+
+  .ctx-card {
+    border: 1px solid var(--border);
+    background: var(--surface);
+    overflow: hidden;
+  }
+
+  .ctx-header {
+    padding: 1.5rem 1.5rem 1rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.8rem;
+  }
+
+  .ctx-header-icon {
+    font-size: 1.8rem;
+    flex-shrink: 0;
+  }
+
+  .ctx-header-text h3 {
+    font-family: 'Fraunces', serif;
+    font-size: 1rem;
+    font-weight: 500;
+    margin-bottom: 0.2rem;
+    line-height: 1.2;
+  }
+
+  .ctx-header-text span {
+    font-family: 'Inconsolata', monospace;
+    font-size: 0.5rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+
+  .ctx-body {
+    padding: 0 1.5rem 1.5rem;
+    font-size: 0.78rem;
+    color: var(--ink-mid);
+    line-height: 1.6;
+  }
+
+  .ctx-footer {
+    padding: 0.8rem 1.5rem;
+    border-top: 1px solid var(--border);
+    font-family: 'Inconsolata', monospace;
+    font-size: 0.52rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    display: flex;
+    justify-content: space-between;
+    color: var(--ink-soft);
+  }
+
+  /* ── VARIANTE ESCOLA ── */
+  .variant-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+  }
+
+  .variant-cell {
+    background: var(--surface);
+    padding: 2rem 2rem;
+  }
+
+  .var-header {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    margin-bottom: 1.2rem;
+    padding-bottom: 0.8rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .var-emoji { font-size: 1.5rem; }
+
+  .var-header h4 {
+    font-family: 'Fraunces', serif;
+    font-size: 0.95rem;
+    font-weight: 500;
+  }
+
+  .var-list {
+    list-style: none;
+  }
+
+  .var-list li {
+    font-size: 0.78rem;
+    color: var(--ink-mid);
+    padding: 0.4rem 0;
+    border-bottom: 1px dashed var(--border);
+    padding-left: 1.2rem;
+    position: relative;
+    line-height: 1.45;
+  }
+
+  .var-list li::before {
+    content: '—';
+    position: absolute;
+    left: 0;
+    color: var(--border);
+    font-size: 0.7rem;
+  }
+
+  .var-list li:last-child { border-bottom: none; }
+
+  /* ── AVALIAÇÃO ── */
+  .eval-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1.5rem;
+  }
+
+  .eval-card {
+    border: 1px solid var(--border);
+    background: var(--surface);
+    padding: 1.8rem 1.5rem;
+  }
+
+  .eval-moment {
+    font-family: 'Inconsolata', monospace;
+    font-size: 0.5rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 0.4rem;
+    display: block;
+  }
+
+  .em-antes  { color: var(--indigo); }
+  .em-durante { color: var(--forest); }
+  .em-depois { color: var(--terracota); }
+
+  .eval-card h4 {
+    font-family: 'Fraunces', serif;
+    font-size: 0.95rem;
+    font-weight: 500;
+    margin-bottom: 0.8rem;
+  }
+
+  .eval-card ul { list-style: none; }
+
+  .eval-card ul li {
+    font-size: 0.76rem;
+    color: var(--ink-mid);
+    padding: 0.35rem 0;
+    border-bottom: 1px dashed var(--border);
+    padding-left: 1rem;
+    position: relative;
+    line-height: 1.45;
+  }
+
+  .eval-card ul li::before {
+    content: '▸';
+    position: absolute;
+    left: 0;
+    color: var(--forest);
+    font-size: 0.55rem;
+    top: 0.5rem;
+  }
+
+  .eval-card ul li:last-child { border-bottom: none; }
+
+  /* ── NOTAS DO MEDIADOR ── */
+  .notes-box {
+    background: var(--cream);
+    border: 1px solid var(--border);
+    padding: 2rem 2.5rem;
+  }
+
+  .notes-box h4 {
+    font-family: 'Fraunces', serif;
+    font-size: 1.1rem;
+    font-weight: 500;
+    font-style: italic;
+    margin-bottom: 1.2rem;
+    padding-bottom: 0.8rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .notes-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 2rem;
+  }
+
+  .note-item {
+    font-size: 0.8rem;
+    color: var(--ink-mid);
+    line-height: 1.65;
+  }
+
+  .note-item strong {
+    display: block;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 0.4rem;
+    font-size: 0.82rem;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--forest);
+    color: rgba(255,255,255,0.35);
+    padding: 2.5rem 4rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 3px solid var(--sand);
+  }
+
+  footer .fl {
+    font-family: 'Fraunces', serif;
+    font-size: 1rem;
+    font-weight: 500;
+    color: rgba(255,255,255,0.65);
+  }
+
+  footer .fl span { color: var(--sand); }
+
+  footer .fr {
+    font-family: 'Inconsolata', monospace;
+    font-size: 0.52rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    text-align: right;
+    line-height: 2.2;
+  }
+
+  @media (max-width: 768px) {
+    .cover { grid-template-columns: 1fr; }
+    .workshop-id, .mediator-layout, .variant-grid { grid-template-columns: 1fr; }
+    .materials-grid, .contexts-grid, .eval-layout { grid-template-columns: 1fr; }
+    .agenda-content-inner { grid-template-columns: 1fr; }
+    .notes-grid { grid-template-columns: 1fr; }
+    .page, .divider { padding-left: 1.5rem; padding-right: 1.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- CAPA -->
+<section class="cover">
+  <div class="cover-texture"></div>
+  <div class="cover-pattern"></div>
+
+  <div class="cover-left">
+    <div class="cover-tag">RED-IGI · DOC-003 · 2026 · Implementação Presencial</div>
+    <div class="cover-main">
+      <h1>Workshop<br><em>Interge&shy;racional</em><br>Guião de<br>Facilitação</h1>
+      <p>
+        Guião completo para mediadores que implementam o Recurso Educativo 
+        Digital em encontros presenciais entre gerações — centros de dia, 
+        bibliotecas, escolas e espaços comunitários.
+      </p>
+    </div>
+    <div class="cover-meta">
+      Implementação presencial · Mediação facilitada<br>
+      Contexto lusófono · Portugal · 2026
+    </div>
+  </div>
+
+  <div class="cover-right">
+    <div class="cover-stats">
+      <div class="cs-item">
+        <div class="cs-val">2–3h</div>
+        <div class="cs-label">Duração do workshop presencial</div>
+      </div>
+      <div class="cs-item">
+        <div class="cs-val">8–16</div>
+        <div class="cs-label">Participantes recomendados</div>
+      </div>
+      <div class="cs-item">
+        <div class="cs-val">2+</div>
+        <div class="cs-label">Gerações representadas (mín.)</div>
+      </div>
+      <div class="cs-item">
+        <div class="cs-val">1</div>
+        <div class="cs-label">Mediador facilitador formado</div>
+      </div>
+    </div>
+
+    <div class="cover-contexts">
+      <div class="ctx-item">
+        <div class="ctx-icon">🏠</div>
+        <div class="ctx-text">
+          <strong>Centro de Dia</strong>
+          Encontro sénior-jovem com foco em segurança digital e IA quotidiana
+        </div>
+      </div>
+      <div class="ctx-item">
+        <div class="ctx-icon">📚</div>
+        <div class="ctx-text">
+          <strong>Biblioteca</strong>
+          Sessão pública aberta à comunidade com mediação de bibliotecário formado
+        </div>
+      </div>
+      <div class="ctx-item">
+        <div class="ctx-icon">🏫</div>
+        <div class="ctx-text">
+          <strong>Escola</strong>
+          Alunos ensinam familiares ou visitam idosos — tutoria inversa estruturada
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ 01 · IDENTIDADE DO WORKSHOP ══════════ -->
+<div class="divider">
+  <span class="div-num">01</span>
+  <div class="div-rule"></div>
+  <span class="div-title">Identidade e Enquadramento do Workshop</span>
+</div>
+
+<div class="page">
+  <span class="eyebrow">Enquadramento pedagógico</span>
+  <h2 class="section-title">O que é este Workshop</h2>
+  <p class="section-lead">
+    O Workshop Intergeracional é o momento presencial de mediação onde o recurso 
+    digital ganha vida no encontro humano entre gerações — onde a tecnologia é 
+    o pretexto, mas a conversa é o coração.
+  </p>
+
+  <div class="workshop-id">
+    <div class="wid-main">
+      <div class="wid-title">Workshop "Navegar Juntos na Era da IA"</div>
+      <div class="wid-subtitle">Encontro intergeracional de literacia digital partilhada</div>
+      <div class="wid-specs">
+        <div class="wid-spec">
+          <div class="wid-spec-label">Duração</div>
+          <div class="wid-spec-val">2h30 (versão completa)<br>90min (versão express)</div>
+        </div>
+        <div class="wid-spec">
+          <div class="wid-spec-label">Participantes</div>
+          <div class="wid-spec-val">8 a 16 pessoas<br>≥ 2 gerações representadas</div>
+        </div>
+        <div class="wid-spec">
+          <div class="wid-spec-label">Equipamento necessário</div>
+          <div class="wid-spec-val">Projetor / ecrã grande<br>Wi-Fi (ou modo offline)</div>
+        </div>
+        <div class="wid-spec">
+          <div class="wid-spec-label">Nível de dificuldade</div>
+          <div class="wid-spec-val">Principiante-Intermédio<br>Sem pré-requisitos</div>
+        </div>
+        <div class="wid-spec">
+          <div class="wid-spec-label">Módulo do Recurso</div>
+          <div class="wid-spec-val">M01 + M02 + M08<br>(ajustável por contexto)</div>
+        </div>
+        <div class="wid-spec">
+          <div class="wid-spec-label">Disposição ideal</div>
+          <div class="wid-spec-val">Mesas em U ou grupos<br>de 4 (intergeracionais)</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="wid-side">
+      <div class="info-box">
+        <h5>Objetivos do Workshop</h5>
+        <ul>
+          <li>Criar um primeiro contacto positivo com o recurso digital</li>
+          <li>Estabelecer diálogo intergeracional sobre IA e desinformação</li>
+          <li>Praticar verificação de informação em grupo</li>
+          <li>Motivar a continuação autónoma do percurso digital</li>
+          <li>Identificar receios e resistências para abordar nos módulos seguintes</li>
+        </ul>
+      </div>
+      <div class="info-box">
+        <h5>Princípio Fundamental</h5>
+        <p style="font-style:italic;color:var(--ink-mid);border-left:2px solid var(--forest);padding-left:0.8rem;">
+          "Neste workshop não há especialistas — há experiências diferentes. 
+          O mais velho sabe coisas que o mais novo ainda não viveu. 
+          O mais novo sabe coisas que o mais velho ainda não aprendeu."
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ 02 · AGENDA DETALHADA ══════════ -->
+<div class="divider">
+  <span class="div-num">02</span>
+  <div class="div-rule"></div>
+  <span class="div-title">Agenda Detalhada — Guião de 2h30</span>
+</div>
+
+<div class="page">
+  <span class="eyebrow">Guião de facilitação</span>
+  <h2 class="section-title">Momento a Momento</h2>
+  <p class="section-lead">
+    Cada bloco inclui a atividade, a sua intencionalidade pedagógica, 
+    dicas de facilitação e materiais de apoio necessários.
+  </p>
+
+  <div class="agenda">
+
+    <!-- Bloco 0 -->
+    <div class="agenda-item">
+      <div class="agenda-time">
+        <span class="agenda-time-val">00:00</span>
+        <span class="agenda-time-dur">15 min</span>
+        <div class="agenda-dot dot-sand"></div>
+      </div>
+      <div class="agenda-content">
+        <div class="agenda-content-inner">
+          <div>
+            <div class="agenda-phase" style="color:var(--sand)">PRÉ-SESSÃO · Acolhimento</div>
+            <div class="agenda-title">Receção e Configuração do Espaço</div>
+            <p class="agenda-desc">
+              O espaço físico comunica antes de qualquer palavra. Mesas em grupos 
+              de 4 mistos (gerações diferentes em cada mesa). Material físico já 
+              distribuído. Música suave de fundo. Mediador à entrada para receber 
+              e orientar cada participante para o lugar.
+            </p>
+            <ul class="agenda-activities">
+              <li>Acolher individualmente cada participante na entrada</li>
+              <li>Orientar para grupos mistos (evitar que a mesma geração se junte)</li>
+              <li>Distribuir etiqueta de nome com geração marcada por cor discreta</li>
+              <li>Garantir que todos têm acesso a dispositivo (próprio ou partilhado)</li>
+            </ul>
+          </div>
+          <div class="agenda-sidebar">
+            <div class="sidebar-chip sc-sand">
+              <span class="sc-label">Disposição do espaço</span>
+              Grupos de 4, mistos. Pelo menos 1 sénior e 1 jovem por mesa. Ecrã principal visível de todos os lugares.
+            </div>
+            <div class="sidebar-chip sc-saffron">
+              <span class="sc-label">Materiais</span>
+              Etiquetas de nome, cartões de grupo, folha de "O que já sei / O que quero aprender"
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bloco 1 -->
+    <div class="agenda-item">
+      <div class="agenda-time">
+        <span class="agenda-time-val">00:15</span>
+        <span class="agenda-time-dur">20 min</span>
+        <div class="agenda-dot dot-forest"></div>
+      </div>
+      <div class="agenda-content">
+        <div class="agenda-content-inner">
+          <div>
+            <div class="agenda-phase" style="color:var(--forest)">BLOCO 1 · Abertura</div>
+            <div class="agenda-title">Apresentações Intergeracionais — "A Minha Relação com a Tecnologia"</div>
+            <p class="agenda-desc">
+              Cada participante apresenta-se partilhando UMA tecnologia que marcou a sua vida 
+              (pode ser o rádio, a televisão, o primeiro telemóvel, o TikTok). Não há respostas 
+              certas — há histórias diferentes. O mediador regista no ecrã as tecnologias 
+              mencionadas, criando uma linha de tempo visual e coletiva.
+            </p>
+            <ul class="agenda-activities">
+              <li>Apresentação em roda — 1 min por pessoa, sem julgamentos</li>
+              <li>Mediador vai construindo linha do tempo digital no ecrã</li>
+              <li>Após todas as apresentações: "O que esta linha de tempo nos diz?"</li>
+              <li>Emergência natural de como cada geração viveu a tecnologia de forma diferente</li>
+            </ul>
+          </div>
+          <div class="agenda-sidebar">
+            <div class="sidebar-chip sc-forest">
+              <span class="sc-label">Intencionalidade pedagógica</span>
+              Valorizar cada experiência geracional. Estabelecer que todos têm saberes válidos. Criar contexto de segurança psicológica.
+            </div>
+            <div class="sidebar-chip sc-indigo">
+              <span class="sc-label">Dica de facilitação</span>
+              Se alguém disser "não sei nada de tecnologia", perguntar: "Usas telemóvel? Vês televisão? Isso é tecnologia!"
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bloco 2 -->
+    <div class="agenda-item">
+      <div class="agenda-time">
+        <span class="agenda-time-val">00:35</span>
+        <span class="agenda-time-dur">30 min</span>
+        <div class="agenda-dot dot-saffron"></div>
+      </div>
+      <div class="agenda-content">
+        <div class="agenda-content-inner">
+          <div>
+            <div class="agenda-phase" style="color:var(--saffron)">BLOCO 2 · Exploração</div>
+            <div class="agenda-title">Atividade "Verdade ou Montagem?" — Deteção de Desinformação em Grupo</div>
+            <p class="agenda-desc">
+              O mediador projeta 5 "notícias" ou imagens (3 falsas, 2 verdadeiras). 
+              Cada grupo discute e decide se é real ou falso, registando os sinais 
+              que os levaram à conclusão. Cada geração contribui com perspetiva 
+              diferente — os mais velhos com contexto histórico, os mais jovens 
+              com ferramentas digitais de verificação.
+            </p>
+            <ul class="agenda-activities">
+              <li>5 min por caso — discussão em grupo, sem consultar internet inicialmente</li>
+              <li>Votação por levantamento de mão — quem acha verdadeiro vs falso?</li>
+              <li>Revelação da resposta com explicação dos sinais de alerta</li>
+              <li>Os jovens demonstram como verificar com ferramentas (reverse image search, etc.)</li>
+              <li>Debate: "Já partilhaste algo que depois descobriste ser falso?"</li>
+            </ul>
+          </div>
+          <div class="agenda-sidebar">
+            <div class="sidebar-chip sc-saffron">
+              <span class="sc-label">Casos recomendados</span>
+              1 deepfake de figura pública; 1 foto fora de contexto; 1 titular sensacionalista; 2 notícias verdadeiras mas improváveis
+            </div>
+            <div class="sidebar-chip sc-forest">
+              <span class="sc-label">Momento de tutoria cruzada</span>
+              Após cada revelação, jovens ensinam a ferramenta de verificação. Idosos partilham o contexto histórico que os ajudou a desconfiar.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bloco 3 — Pausa -->
+    <div class="agenda-item">
+      <div class="agenda-time">
+        <span class="agenda-time-val">01:05</span>
+        <span class="agenda-time-dur">15 min</span>
+        <div class="agenda-dot" style="background:#ccc"></div>
+      </div>
+      <div class="agenda-content">
+        <div class="agenda-content-inner">
+          <div>
+            <div class="agenda-phase" style="color:#999">PAUSA · Intervalo</div>
+            <div class="agenda-title">Pausa com Continuação Informal</div>
+            <p class="agenda-desc">
+              A pausa é parte da sessão. O mediador deixa no ecrã uma pergunta 
+              para reflexão informal: "Mostra ao teu grupo de mesa uma app que usas 
+              todos os dias e conta para que serve". As conversas informais são 
+              muitas vezes onde a aprendizagem mais profunda acontece.
+            </p>
+          </div>
+          <div class="agenda-sidebar">
+            <div class="sidebar-chip sc-sand">
+              <span class="sc-label">Nota do mediador</span>
+              Circular pelas mesas durante a pausa. Observar dinâmicas. Verificar se há participantes isolados ou com dificuldades técnicas.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bloco 4 -->
+    <div class="agenda-item">
+      <div class="agenda-time">
+        <span class="agenda-time-val">01:20</span>
+        <span class="agenda-time-dur">35 min</span>
+        <div class="agenda-dot dot-terra"></div>
+      </div>
+      <div class="agenda-content">
+        <div class="agenda-content-inner">
+          <div>
+            <div class="agenda-phase" style="color:var(--terracota)">BLOCO 3 · Exploração da IA</div>
+            <div class="agenda-title">Atividade "Conhecer a IA" — O que é, onde está, o que pode e não pode</div>
+            <p class="agenda-desc">
+              Exploração guiada do módulo M03 do recurso digital. O mediador 
+              projeta a plataforma no ecrã e convida os participantes a navegar 
+              em simultâneo nos seus dispositivos. Foco no conteúdo "IA no 
+              quotidiano" e na atividade interativa de identificação de IA 
+              em produtos e serviços que todos usam.
+            </p>
+            <ul class="agenda-activities">
+              <li>Projetar o recurso — explorar juntos a secção "O que é a IA?" (versão adaptada)</li>
+              <li>Quiz em grupo: "Isto tem IA?" — 10 produtos do quotidiano</li>
+              <li>Demonstração ao vivo: interação com assistente de IA generativa</li>
+              <li>Debate estruturado: "Quando é que a IA pode ajudar ou prejudicar?"</li>
+              <li>Cada geração partilha a sua maior preocupação ou curiosidade sobre IA</li>
+            </ul>
+          </div>
+          <div class="agenda-sidebar">
+            <div class="sidebar-chip sc-terra">
+              <span class="sc-label">Alerta de facilitação</span>
+              Alguns seniores podem sentir ansiedade. Reforçar: "Não precisam de perceber tudo. O objetivo é saber que existe e onde afeta a vossa vida."
+            </div>
+            <div class="sidebar-chip sc-indigo">
+              <span class="sc-label">Ligação ao recurso</span>
+              Este bloco corresponde ao Módulo M03 — os participantes ficam com o percurso parcialmente iniciado na plataforma.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bloco 5 -->
+    <div class="agenda-item">
+      <div class="agenda-time">
+        <span class="agenda-time-val">01:55</span>
+        <span class="agenda-time-dur">20 min</span>
+        <div class="agenda-dot dot-indigo"></div>
+      </div>
+      <div class="agenda-content">
+        <div class="agenda-content-inner">
+          <div>
+            <div class="agenda-phase" style="color:var(--indigo)">BLOCO 4 · Missão Partilhada</div>
+            <div class="agenda-title">Missão "Ensinamos Juntos" — Tutoria Cruzada em Ação</div>
+            <p class="agenda-desc">
+              Cada grupo de mesa recebe uma missão diferente: jovens ensinam 
+              um serviço digital ao sénior; sénior partilha uma competência 
+              analógica com o jovem (ex: avaliar credibilidade sem internet). 
+              Finaliza com partilha em plenário — "O que aprendi com o meu grupo?"
+            </p>
+            <ul class="agenda-activities">
+              <li>Missão A: jovem ensina sénior a usar um serviço público digital</li>
+              <li>Missão B: sénior ensina jovem a verificar informação sem internet</li>
+              <li>Missão C: grupo cria juntos um critério de verificação de notícias</li>
+              <li>Partilha em plenário — 1 aprendizagem por mesa (2 min cada)</li>
+            </ul>
+          </div>
+          <div class="agenda-sidebar">
+            <div class="sidebar-chip sc-indigo">
+              <span class="sc-label">Intencionalidade central</span>
+              Este é o núcleo do workshop — o momento onde a aprendizagem é genuinamente bidirecional e cada geração percebe o valor da outra.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bloco 6 — Encerramento -->
+    <div class="agenda-item">
+      <div class="agenda-time">
+        <span class="agenda-time-val">02:15</span>
+        <span class="agenda-time-dur">15 min</span>
+        <div class="agenda-dot dot-forest"></div>
+      </div>
+      <div class="agenda-content">
+        <div class="agenda-content-inner">
+          <div>
+            <div class="agenda-phase" style="color:var(--forest)">BLOCO 5 · Encerramento</div>
+            <div class="agenda-title">Reflexão Final e Continuação Autónoma</div>
+            <p class="agenda-desc">
+              Ronda de encerramento: cada participante partilha numa palavra ou 
+              frase "o que levo daqui". Mediador apresenta o percurso digital 
+              completo e convida à continuação autónoma. Criação do "Pacto Digital 
+              Intergeracional" — compromisso coletivo simbólico da sessão.
+            </p>
+            <ul class="agenda-activities">
+              <li>Ronda de encerramento — 1 palavra ou frase por participante</li>
+              <li>Apresentação do percurso completo do recurso (visão geral)</li>
+              <li>"Pacto Digital" — cartão físico assinado com 1 compromisso pessoal</li>
+              <li>Distribuição de QR code para aceder ao recurso em casa</li>
+              <li>Registo de contactos para acompanhamento e follow-up</li>
+            </ul>
+          </div>
+          <div class="agenda-sidebar">
+            <div class="sidebar-chip sc-forest">
+              <span class="sc-label">Pacto Digital — exemplo</span>
+              "Comprometo-me a verificar uma notícia antes de partilhar" / "Comprometo-me a ensinar o meu avô a usar o Multibanco digital"
+            </div>
+            <div class="sidebar-chip sc-saffron">
+              <span class="sc-label">Follow-up</span>
+              Enviar mensagem de acompanhamento 2 semanas depois. Convidar para sessão de follow-up presencial ou online.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════ 03 · PAPEL DO MEDIADOR ══════════ -->
+<div class="divider">
+  <span class="div-num">03</span>
+  <div class="div-rule"></div>
+  <span class="div-title">Papel do Mediador — O Que Fazer e Evitar</span>
+</div>
+
+<div class="page">
+  <span class="eyebrow">Facilitação</span>
+  <h2 class="section-title">O Mediador como Ponte</h2>
+  <p class="section-lead">
+    O mediador não é o especialista — é o arquiteto do encontro. 
+    O seu papel é criar as condições para que a aprendizagem aconteça 
+    entre os participantes, não a partir de si.
+  </p>
+
+  <div class="mediator-layout">
+    <div class="mediator-do">
+      <div class="mediator-header do-header">
+        <span>✅</span>
+        <h4>O que o Mediador deve Fazer</h4>
+      </div>
+      <div class="mediator-body">
+        <div class="mediator-item do-item">Valorizar todas as contribuições, especialmente as dos participantes mais velhos que se sentem "atrasados"</div>
+        <div class="mediator-item do-item">Gerir o tempo com flexibilidade — se uma discussão está viva e relevante, deixar fluir</div>
+        <div class="mediator-item do-item">Criar pontes entre gerações: "O que a Ana disse lembra-me o que o Manuel partilhou"</div>
+        <div class="mediator-item do-item">Normalizar a dificuldade e o erro: "É normal não saber — estamos todos a aprender"</div>
+        <div class="mediator-item do-item">Circular pelas mesas durante as atividades de grupo para apoiar e observar</div>
+        <div class="mediator-item do-item">Usar linguagem acessível, evitar jargão técnico sem explicação</div>
+        <div class="mediator-item do-item">Registar momentos de aprendizagem espontânea para partilhar no plenário</div>
+        <div class="mediator-item do-item">Criar humor e leveza quando a tensão aumenta (tema da IA pode gerar ansiedade)</div>
+        <div class="mediator-item do-item">Garantir que ninguém domina a conversa — incluir ativamente os mais silenciosos</div>
+        <div class="mediator-item do-item">Terminar sempre com algo positivo — o que os participantes já sabem e fazem bem</div>
+      </div>
+    </div>
+
+    <div class="mediator-dont">
+      <div class="mediator-header dont-header">
+        <span>🚫</span>
+        <h4>O que o Mediador deve Evitar</h4>
+      </div>
+      <div class="mediator-body">
+        <div class="mediator-item dont-item">Colocar o jovem em posição de superioridade técnica face ao sénior ("o jovem vai ensinar-te")</div>
+        <div class="mediator-item dont-item">Infantilizar os participantes mais velhos com linguagem simplista ou tom paternalista</div>
+        <div class="mediator-item dont-item">Responder às perguntas antes de dar tempo aos próprios participantes para o fazer</div>
+        <div class="mediator-item dont-item">Usar exemplos culturalmente distantes da realidade dos participantes</div>
+        <div class="mediator-item dont-item">Deixar o workshop tornar-se uma formação técnica — o foco é o diálogo intergeracional</div>
+        <div class="mediator-item dont-item">Ignorar sinais de ansiedade ou resistência — pará-los e abordar diretamente</div>
+        <div class="mediator-item dont-item">Criar grupos homogéneos — a mistura geracional é a condição essencial do workshop</div>
+        <div class="mediator-item dont-item">Deixar a tecnologia dominar a sessão — dispositivos são ferramentas, não protagonistas</div>
+        <div class="mediator-item dont-item">Fazer juízos de valor sobre hábitos digitais dos participantes</div>
+        <div class="mediator-item dont-item">Encerrar sem garantir que todos sabem como continuar o percurso digital em casa</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ 04 · MATERIAIS ══════════ -->
+<div class="divider">
+  <span class="div-num">04</span>
+  <div class="div-rule"></div>
+  <span class="div-title">Materiais e Recursos Necessários</span>
+</div>
+
+<div class="page">
+  <span class="eyebrow">Logística</span>
+  <h2 class="section-title">Kit do Mediador</h2>
+  <p class="section-lead">
+    Lista completa de materiais digitais, físicos e humanos necessários 
+    para a implementação bem-sucedida do workshop.
+  </p>
+
+  <div class="materials-grid">
+    <div class="mat-card">
+      <h4>Recursos Digitais <span class="mat-badge mb-digital">Digital</span></h4>
+      <ul class="mat-list">
+        <li>Acesso à plataforma do recurso (conta de facilitador)</li>
+        <li>5 casos "Verdade ou Montagem?" preparados e atualizados</li>
+        <li>Apresentação de abertura (slides do mediador)</li>
+        <li>QR codes para acesso ao recurso (impressos ou projetados)</li>
+        <li>Guião digital do mediador com timings</li>
+        <li>Formulário de avaliação da sessão (Google Forms ou papel)</li>
+        <li>Vídeo de demonstração de IA generativa (pré-carregado, sem internet)</li>
+        <li>Missões intergeracionais em PDF para download offline</li>
+      </ul>
+    </div>
+    <div class="mat-card">
+      <h4>Recursos Físicos <span class="mat-badge mb-fisico">Físico</span></h4>
+      <ul class="mat-list">
+        <li>Projetor e ecrã (ou TV grande) visível de todos os lugares</li>
+        <li>Wi-Fi estável (ou modo offline pré-configurado)</li>
+        <li>Etiquetas de nome (com cor de geração)</li>
+        <li>Cartões de grupo para mesa (com missão da mesa)</li>
+        <li>Post-its e canetas para cada mesa</li>
+        <li>Cartões "Pacto Digital" para assinar no final</li>
+        <li>Folhas A3 para linha do tempo da abertura</li>
+        <li>Dispositivos de empréstimo (tablets/smartphones) se necessário</li>
+      </ul>
+    </div>
+    <div class="mat-card">
+      <h4>Recursos Humanos <span class="mat-badge mb-humano">Humano</span></h4>
+      <ul class="mat-list">
+        <li>1 Mediador principal (formação de 4h concluída)</li>
+        <li>1 Co-facilitador para apoio técnico (recomendado para grupos >10)</li>
+        <li>1 Jovem voluntário sénior (tutor técnico para grupos com muitos idosos)</li>
+        <li>Contato técnico disponível durante a sessão (telefone ou chat)</li>
+        <li>Responsável do espaço para questões logísticas</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ 05 · CONTEXTOS ══════════ -->
+<div class="divider">
+  <span class="div-num">05</span>
+  <div class="div-rule"></div>
+  <span class="div-title">Adaptações por Contexto de Implementação</span>
+</div>
+
+<div class="page">
+  <span class="eyebrow">Flexibilidade contextual</span>
+  <h2 class="section-title">O Workshop em Três Contextos</h2>
+  <p class="section-lead">
+    O guião base adapta-se a três contextos principais, cada um com 
+    ajustes específicos na composição do grupo, foco temático 
+    e dinâmicas de facilitação.
+  </p>
+
+  <div class="contexts-grid">
+    <div class="ctx-card">
+      <div class="ctx-header">
+        <div class="ctx-header-icon">🏠</div>
+        <div class="ctx-header-text">
+          <h3>Centro de Dia</h3>
+          <span>Comunidade sénior com visita de jovens</span>
+        </div>
+      </div>
+      <div class="ctx-body">
+        <p style="margin-bottom:1rem;">Contexto com maior assimetria geracional. Os seniores estão no seu espaço — território familiar — o que cria conforto mas pode gerar resistência à novidade. Os jovens visitantes (estudantes, voluntários) chegam como convidados.</p>
+        <strong style="display:block;margin-bottom:0.5rem;font-size:0.78rem;color:var(--ink);">Ajustes específicos:</strong>
+        <ul style="list-style:none;">
+          <li style="font-size:0.75rem;color:var(--ink-mid);padding:0.3rem 0 0.3rem 1rem;position:relative;border-bottom:1px dashed var(--border);">
+            <span style="position:absolute;left:0;color:var(--forest);">→</span>
+            Começar com o que os seniores já sabem e fazem bem digitalmente
+          </li>
+          <li style="font-size:0.75rem;color:var(--ink-mid);padding:0.3rem 0 0.3rem 1rem;position:relative;border-bottom:1px dashed var(--border);">
+            <span style="position:absolute;left:0;color:var(--forest);">→</span>
+            Foco em segurança digital e proteção contra fraudes (alta relevância)
+          </li>
+          <li style="font-size:0.75rem;color:var(--ink-mid);padding:0.3rem 0 0.3rem 1rem;position:relative;border-bottom:1px dashed var(--border);">
+            <span style="position:absolute;left:0;color:var(--forest);">→</span>
+            Jovens assumem papel de suporte técnico discreto, sem protagonismo
+          </li>
+          <li style="font-size:0.75rem;color:var(--ink-mid);padding:0.3rem 0 0.3rem 1rem;position:relative;">
+            <span style="position:absolute;left:0;color:var(--forest);">→</span>
+            Ritmo mais lento, mais pausas, letras maiores no ecrã projetado
+          </li>
+        </ul>
+      </div>
+      <div class="ctx-footer">
+        <span>Duração ideal: 2h</span>
+        <span>Grupo: 8–12</span>
+      </div>
+    </div>
+
+    <div class="ctx-card">
+      <div class="ctx-header">
+        <div class="ctx-header-icon">📚</div>
+        <div class="ctx-header-text">
+          <h3>Biblioteca Pública</h3>
+          <span>Sessão aberta à comunidade</span>
+        </div>
+      </div>
+      <div class="ctx-body">
+        <p style="margin-bottom:1rem;">Contexto mais heterogéneo e imprevisível — quem vem é quem se inscreve. Pode haver grande diversidade de motivações e níveis. A biblioteca como espaço neutro facilita a mistura geracional sem territorialidade.</p>
+        <strong style="display:block;margin-bottom:0.5rem;font-size:0.78rem;color:var(--ink);">Ajustes específicos:</strong>
+        <ul style="list-style:none;">
+          <li style="font-size:0.75rem;color:var(--ink-mid);padding:0.3rem 0 0.3rem 1rem;position:relative;border-bottom:1px dashed var(--border);">
+            <span style="position:absolute;left:0;color:var(--forest);">→</span>
+            Diagnóstico rápido inicial para ajustar nível da sessão
+          </li>
+          <li style="font-size:0.75rem;color:var(--ink-mid);padding:0.3rem 0 0.3rem 1rem;position:relative;border-bottom:1px dashed var(--border);">
+            <span style="position:absolute;left:0;color:var(--forest);">→</span>
+            Foco em desinformação e verificação (tema universal e urgente)
+          </li>
+          <li style="font-size:0.75rem;color:var(--ink-mid);padding:0.3rem 0 0.3rem 1rem;position:relative;border-bottom:1px dashed var(--border);">
+            <span style="position:absolute;left:0;color:var(--forest);">→</span>
+            Aproveitar o espaço físico — integrar recursos da biblioteca
+          </li>
+          <li style="font-size:0.75rem;color:var(--ink-mid);padding:0.3rem 0 0.3rem 1rem;position:relative;">
+            <span style="position:absolute;left:0;color:var(--forest);">→</span>
+            Biblioteário como co-facilitador (papel natural de mediação de informação)
+          </li>
+        </ul>
+      </div>
+      <div class="ctx-footer">
+        <span>Duração ideal: 2h30</span>
+        <span>Grupo: 10–16</span>
+      </div>
+    </div>
+
+    <div class="ctx-card">
+      <div class="ctx-header">
+        <div class="ctx-header-icon">🏫</div>
+        <div class="ctx-header-text">
+          <h3>Escola</h3>
+          <span>Alunos como tutores digitais</span>
+        </div>
+      </div>
+      <div class="ctx-body">
+        <p style="margin-bottom:1rem;">Dois modelos possíveis: (A) alunos recebem familiares na escola para sessão conjunta; (B) turma visita centro de dia. Em ambos, os alunos preparam-se previamente como tutores digitais — papel que desenvolve a sua própria literacia.</p>
+        <strong style="display:block;margin-bottom:0.5rem;font-size:0.78rem;color:var(--ink);">Ajustes específicos:</strong>
+        <ul style="list-style:none;">
+          <li style="font-size:0.75rem;color:var(--ink-mid);padding:0.3rem 0 0.3rem 1rem;position:relative;border-bottom:1px dashed var(--border);">
+            <span style="position:absolute;left:0;color:var(--forest);">→</span>
+            Preparação prévia em sala de aula (1 sessão de 45min antes do workshop)
+          </li>
+          <li style="font-size:0.75rem;color:var(--ink-mid);padding:0.3rem 0 0.3rem 1rem;position:relative;border-bottom:1px dashed var(--border);">
+            <span style="position:absolute;left:0;color:var(--forest);">→</span>
+            Cada aluno tem um "parceiro sénior" designado antecipadamente
+          </li>
+          <li style="font-size:0.75rem;color:var(--ink-mid);padding:0.3rem 0 0.3rem 1rem;position:relative;border-bottom:1px dashed var(--border);">
+            <span style="position:absolute;left:0;color:var(--forest);">→</span>
+            Reflexão posterior em sala sobre o que o aluno aprendeu ao ensinar
+          </li>
+          <li style="font-size:0.75rem;color:var(--ink-mid);padding:0.3rem 0 0.3rem 1rem;position:relative;">
+            <span style="position:absolute;left:0;color:var(--forest);">→</span>
+            Integração curricular: TIC, Cidadania e Desenvolvimento, Português
+          </li>
+        </ul>
+      </div>
+      <div class="ctx-footer">
+        <span>Duração ideal: 2h + prep.</span>
+        <span>Grupo: 12–16</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ 06 · AVALIAÇÃO DA SESSÃO ══════════ -->
+<div class="divider">
+  <span class="div-num">06</span>
+  <div class="div-rule"></div>
+  <span class="div-title">Avaliação da Sessão Presencial</span>
+</div>
+
+<div class="page">
+  <span class="eyebrow">Monitorização e impacto</span>
+  <h2 class="section-title">Avaliar o Workshop</h2>
+  <p class="section-lead">
+    A avaliação da sessão presencial recolhe dados em três momentos distintos 
+    e alimenta a melhoria contínua do guião e dos materiais.
+  </p>
+
+  <div class="eval-layout">
+    <div class="eval-card">
+      <span class="eval-moment em-antes">Antes da Sessão</span>
+      <h4>Diagnóstico do Mediador</h4>
+      <ul>
+        <li>Caracterização do grupo (idades, experiência digital estimada)</li>
+        <li>Verificação do espaço e equipamentos</li>
+        <li>Identificação de necessidades de acessibilidade específicas</li>
+        <li>Ajuste do guião ao contexto e grupo concreto</li>
+        <li>Preparação dos casos "Verdade ou Montagem?" contextualizados</li>
+      </ul>
+    </div>
+    <div class="eval-card">
+      <span class="eval-moment em-durante">Durante a Sessão</span>
+      <h4>Observação Ativa</h4>
+      <ul>
+        <li>Registo de momentos de aprendizagem intergeracional espontânea</li>
+        <li>Observação de dinâmicas de grupo e participação</li>
+        <li>Nota de resistências ou dificuldades específicas</li>
+        <li>Registo de perguntas recorrentes (indicam lacunas do recurso)</li>
+        <li>Foto ou vídeo (com consentimento) para documentação</li>
+      </ul>
+    </div>
+    <div class="eval-card">
+      <span class="eval-moment em-depois">Após a Sessão</span>
+      <h4>Avaliação de Impacto</h4>
+      <ul>
+        <li>Questionário de satisfação (escala 1–5 + pergunta aberta)</li>
+        <li>Registo de inscrições no recurso digital realizadas na sessão</li>
+        <li>Follow-up 2 semanas: quantos continuaram o percurso?</li>
+        <li>Relatório do mediador com observações e sugestões</li>
+        <li>Envio de dados anonimizados para equipa do projeto</li>
+      </ul>
+    </div>
+  </div>
+
+  <div style="margin-top:2rem;">
+    <div class="notes-box">
+      <h4>Notas Finais para o Mediador</h4>
+      <div class="notes-grid">
+        <div class="note-item">
+          <strong>Se a tecnologia falha</strong>
+          Tenha sempre um plano B analógico. Os casos "Verdade ou Montagem?" em papel. As missões intergeracionais sem dispositivo. Uma boa sessão de literacia digital pode acontecer sem internet.
+        </div>
+        <div class="note-item">
+          <strong>Se o grupo resiste à IA</strong>
+          Não force. Escute. Pergunte: "O que vos preocupa?" A resistência é dados valiosos — sobre medos reais que o recurso precisa de endereçar. Valide sem condescender.
+        </div>
+        <div class="note-item">
+          <strong>Se o tempo esgota</strong>
+          Priorize os blocos 2 (desinformação) e 4 (missão partilhada) — são os de maior impacto intergeracional. O bloco 3 (IA) pode ser mais curto ou delegado para trabalho autónomo posterior no recurso.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="fl">Workshop <span>Intergeracional</span> · Guião</div>
+  <div class="fr">
+    RED-IGI · DOC-003 · Abril 2026<br>
+    Implementação Presencial<br>
+    Centro de Dia · Biblioteca · Escola<br>
+    Contexto Lusófono · Portugal
+  </div>
+</footer>
+
+</body>
+</html>
